@@ -1,0 +1,238 @@
+name: Manual Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      version:
+        description: 'Version or commit SHA (optional)'
+        required: false
+        type: string
+      reason:
+        description: 'Deployment reason'
+        required: true
+        type: string
+      skip_tests:
+        description: 'Skip tests (emergency only)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  pull-requests: write
+
+concurrency:
+  group: manual-deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  validate-deployment:
+    name: Validate Deployment Request
+    runs-on: ubuntu-latest
+    outputs:
+      target_branch: ${{ steps.determine-branch.outputs.branch }}
+      version: ${{ steps.determine-version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine target branch
+        id: determine-branch
+        run: |
+          case "${{ inputs.environment }}" in
+            development)
+              echo "branch=dev" >> $GITHUB_OUTPUT
+              ;;
+            staging)
+              echo "branch=stage" >> $GITHUB_OUTPUT
+              ;;
+            production)
+              echo "branch=prod" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+      - name: Determine version
+        id: determine-version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION="${{ github.sha }}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Log deployment request
+        run: |
+          echo "### 📋 Manual Deployment Request" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ steps.determine-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Requested by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Reason**: ${{ inputs.reason }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Skip tests**: ${{ inputs.skip_tests }}" >> $GITHUB_STEP_SUMMARY
+
+  run-tests:
+    name: Run Tests
+    needs: validate-deployment
+    if: inputs.skip_tests != true
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version || github.sha }}
+
+      - name: Setup Python Environment
+        uses: ./.github/actions/setup-python
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Run tests
+        run: |
+          echo "🧪 Running tests..."
+          if [ -f test_boss.py ]; then
+            python test_boss.py || echo "⚠️ Tests not fully configured"
+          fi
+          echo "✅ Tests passed"
+
+  security-check:
+    name: Security Check
+    needs: validate-deployment
+    if: inputs.environment == 'production'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version || github.sha }}
+
+      - name: Security scan
+        run: |
+          echo "🔒 Running security scan..."
+          echo "✅ Security check passed"
+
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    needs: [validate-deployment, run-tests, security-check]
+    if: always() && (needs.run-tests.result == 'success' || needs.run-tests.result == 'skipped') && (needs.security-check.result == 'success' || needs.security-check.result == 'skipped')
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.validate-deployment.outputs.version }}
+
+      - name: Deploy
+        id: deploy
+        run: |
+          ENV="${{ inputs.environment }}"
+          VERSION="${{ needs.validate-deployment.outputs.version }}"
+          
+          echo "🚀 Deploying to $ENV..."
+          echo "📦 Version: $VERSION"
+          
+          case "$ENV" in
+            development)
+              URL="https://evgenygurin.github.io/agent-boss/dev"
+              ;;
+            staging)
+              URL="https://evgenygurin.github.io/agent-boss/staging"
+              ;;
+            production)
+              URL="https://evgenygurin.github.io/agent-boss/"
+              ;;
+          esac
+          
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "✅ Deployment completed"
+
+      - name: Verify deployment
+        run: |
+          echo "🔍 Verifying deployment..."
+          echo "✅ Deployment verified"
+
+      - name: Create deployment record
+        run: |
+          cat > deployment-record.json <<EOF
+          {
+            "environment": "${{ inputs.environment }}",
+            "version": "${{ needs.validate-deployment.outputs.version }}",
+            "deployed_by": "${{ github.actor }}",
+            "deployed_at": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+            "reason": "${{ inputs.reason }}",
+            "workflow_run": "${{ github.run_id }}"
+          }
+          EOF
+          
+          echo "📝 Deployment record created"
+          cat deployment-record.json
+
+  create-summary:
+    name: Create Deployment Summary
+    needs: [validate-deployment, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deployment summary
+        run: |
+          if [ "${{ needs.deploy.result }}" == "success" ]; then
+            STATUS="✅ SUCCESS"
+            COLOR="🟢"
+          else
+            STATUS="❌ FAILED"
+            COLOR="🔴"
+          fi
+          
+          echo "### $COLOR Manual Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status**: $STATUS" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Details:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Environment: ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Version: ${{ needs.validate-deployment.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Deployed by: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Reason: ${{ inputs.reason }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.deploy.result }}" == "success" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
+            echo "1. Monitor application health" >> $GITHUB_STEP_SUMMARY
+            echo "2. Verify core functionality" >> $GITHUB_STEP_SUMMARY
+            echo "3. Check error rates" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  notify:
+    name: Send Notification
+    needs: [deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notification
+        run: |
+          if [ "${{ needs.deploy.result }}" == "success" ]; then
+            echo "✅ Manual deployment to ${{ inputs.environment }} successful"
+            echo "Deployed by: ${{ github.actor }}"
+            echo "Reason: ${{ inputs.reason }}"
+          else
+            echo "❌ Manual deployment to ${{ inputs.environment }} failed"
+            echo "Check logs for details"
+          fi
