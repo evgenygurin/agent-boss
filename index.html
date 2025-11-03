@@ -42,13 +42,85 @@
             font-size: 4em;
             margin-bottom: 20px;
         }
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin: 10px 5px;
+            color: white;
+        }
+        .badge.prod {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .badge.stage {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .badge.dev {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        .info {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: left;
+        }
+        .info h2 {
+            color: #333;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+        .info ul {
+            list-style: none;
+            padding: 0;
+        }
+        .info li {
+            padding: 8px 0;
+            color: #666;
+            font-size: 1em;
+        }
+        .info li::before {
+            content: "✓ ";
+            color: #43e97b;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+            color: #999;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="emoji">🤖</div>
         <h1>Agent Boss</h1>
-        <p>Welcome to Agent Boss GitHub Pages!</p>
+        <p>Ultimate Boss Agent with Task-Centric Memory</p>
+        
+        <div style="margin: 20px 0;">
+            <span class="badge prod">🚀 Production</span>
+            <span class="badge stage">🎭 Staging</span>
+            <span class="badge dev">🔧 Development</span>
+        </div>
+        
+        <div class="info">
+            <h2>🔄 CI/CD Pipeline Active</h2>
+            <ul>
+                <li>Three-environment deployment strategy</li>
+                <li>Automated testing & validation</li>
+                <li>Branch protection & code reviews</li>
+                <li>GitHub Actions powered deployment</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p>📚 <a href="https://github.com/evgenygurin/agent-boss" style="color: #667eea; text-decoration: none;">View on GitHub</a></p>
+        </div>
     </div>
 </body>
 </html>

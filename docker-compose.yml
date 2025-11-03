@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  ultimate-boss-memory:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - CODEGEN_ORG_ID=${CODEGEN_ORG_ID}
+      - CODEGEN_API_TOKEN=${CODEGEN_API_TOKEN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      # Task-centric memory
+      - ./pagelogs:/app/pagelogs
+      - ./boss_teachability_db:/app/boss_teachability_db
+      
+      # Mem0 storage
+      - ./boss_mem0_storage:/app/boss_mem0_storage
+      
+      # ChromaDB storage
+      - ./boss_chroma_db:/app/boss_chroma_db
+      
+      # Logs
+      - ./logs:/app/logs
+    
+    depends_on:
+      - chroma
+      - redis
+    
+    command: python ultimate_boss_with_memory.py
+
+  # ChromaDB для векторного поиска
+  chroma:
+    image: chromadb/chroma:latest
+    ports:
+      - "8001:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+
+  # Redis для кэширования
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  chroma_data:
+  redis_data:
