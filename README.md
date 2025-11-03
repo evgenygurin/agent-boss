@@ -317,6 +317,46 @@ curl -X POST http://localhost:8000/teach \
   -d '{"lesson": "Use conventional commits"}'
 ```
 
+## 🔄 CI/CD Pipeline
+
+Этот проект использует **6 production-ready GitHub Actions workflows** с полной автоматизацией:
+
+### Workflows
+- **Development CI/CD** - Multi-version testing (Python 3.10, 3.11, 3.12), auto-deploy
+- **Staging Deploy** - Security scanning, integration tests, smoke tests
+- **Production Deploy** - GitHub Pages deployment, protected environment
+- **PR Checks** - Branch naming validation, flow validation, automated feedback
+- **Hotfix Pipeline** - Emergency response, auto-PR creation, fast-track deployment
+- **Manual Deployment** - On-demand deployment with full control
+
+### Features
+✅ Multi-version Python testing (3.10, 3.11, 3.12)  
+✅ Automated security scanning  
+✅ Branch flow validation  
+✅ Artifact management with retention policies  
+✅ Emergency hotfix automation  
+✅ Manual deployment override  
+✅ Reusable custom actions  
+
+### Quick Commands
+```bash
+# View workflow status
+gh workflow list
+
+# Check recent runs
+gh run list --limit 5
+
+# Manual deployment
+# GitHub → Actions → Manual Deployment → Run workflow
+```
+
+### Documentation
+- 📘 [WORKFLOW.md](./WORKFLOW.md) - Git workflow guide
+- 🔄 [WORKFLOWS_GUIDE.md](./WORKFLOWS_GUIDE.md) - Complete workflows documentation
+- 🔧 [SETUP.md](./SETUP.md) - Repository setup instructions
+- 🌳 [BRANCHING_STRATEGY.md](./BRANCHING_STRATEGY.md) - Branch strategy visualization
+- 🚀 [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) - Daily command reference
+
 ## 📈 Roadmap
 
 - [ ] Интеграция с Linear для автоматического создания задач
