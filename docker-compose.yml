@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  ultimate-boss-memory:
+    build: .
+    container_name: ultimate-boss
+    ports:
+      - "8000:8000"
+    environment:
+      - CODEGEN_ORG_ID=${CODEGEN_ORG_ID}
+      - CODEGEN_API_TOKEN=${CODEGEN_API_TOKEN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      # Task-centric memory
+      - ./pagelogs:/app/pagelogs
+      - ./boss_teachability_db:/app/boss_teachability_db
+      
+      # Mem0 storage
+      - ./boss_mem0_storage:/app/boss_mem0_storage
+      
+      # ChromaDB storage
+      - ./boss_chroma_db:/app/boss_chroma_db
+      
+      # Logs
+      - ./logs:/app/logs
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  default:
+    name: agent-boss-network
+
