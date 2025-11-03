@@ -23,6 +23,33 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Validate branch naming
+        run: |
+          SOURCE="${{ github.head_ref }}"
+          
+          echo "🔍 Validating branch name: $SOURCE"
+          
+          # Allow specific branch patterns
+          if [[ "$SOURCE" =~ ^(feature|bugfix|hotfix|release|promote)/ ]] || \
+             [[ "$SOURCE" =~ ^(dev|stage|prod)$ ]]; then
+            echo "✅ Branch name is valid: $SOURCE"
+          else
+            echo "❌ Invalid branch name: $SOURCE"
+            echo ""
+            echo "Allowed patterns:"
+            echo "  - feature/*    (new features)"
+            echo "  - bugfix/*     (bug fixes)"
+            echo "  - hotfix/*     (emergency fixes)"
+            echo "  - release/*    (release branches)"
+            echo "  - promote/*    (promotion branches)"
+            echo ""
+            echo "Examples:"
+            echo "  ✅ feature/user-authentication"
+            echo "  ✅ bugfix/fix-login-error"
+            echo "  ✅ hotfix/critical-security-patch"
+            exit 1
+          fi
+
       - name: Check PR target
         run: |
           TARGET="${{ github.base_ref }}"
@@ -33,14 +60,18 @@ jobs:
           echo "- Target: $TARGET"
           
           # Validate branch flow: feature/* -> dev -> stage -> prod
-          if [[ "$TARGET" == "stage" ]] && [[ "$SOURCE" != "dev" ]]; then
-            echo "❌ Error: PRs to 'stage' must come from 'dev'"
-            exit 1
+          if [[ "$TARGET" == "stage" ]]; then
+            if [[ ! "$SOURCE" =~ ^(dev|promote/) ]]; then
+              echo "❌ Error: PRs to 'stage' must come from 'dev' or 'promote/*'"
+              exit 1
+            fi
           fi
           
-          if [[ "$TARGET" == "prod" ]] && [[ "$SOURCE" != "stage" ]]; then
-            echo "❌ Error: PRs to 'prod' must come from 'stage'"
-            exit 1
+          if [[ "$TARGET" == "prod" ]]; then
+            if [[ ! "$SOURCE" =~ ^(stage|promote/|hotfix/) ]]; then
+              echo "❌ Error: PRs to 'prod' must come from 'stage', 'promote/*', or 'hotfix/*'"
+              exit 1
+            fi
           fi
           
           echo "✅ Branch flow validation passed"
