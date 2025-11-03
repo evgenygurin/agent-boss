@@ -1,392 +1,312 @@
-# 🧠 Ultimate Boss Agent with Task-Centric Memory
+# 🤖 Ultimate Boss Agent with Task-Centric Memory
 
-Интеллектуальный босс-агент с полной памятью, который делегирует ВСЕ задачи через Codegen API и учится на каждом опыте.
+> Интеллектуальный босс-агент на базе Autogen с полной памятью, который делегирует ВСЕ задачи через Codegen API
 
-## 🎯 Ключевые возможности
+## 🌟 Особенности
 
-### Тройная система памяти
+### 💾 Тройная система памяти
 - **Task-Centric Memory** - специализированная память для задач и решений от Autogen
 - **Mem0** - долгосрочная персистентная память
 - **ChromaDB** - векторный поиск для похожих задач
 
-### Обучение через практику
-- Учится на каждом делегировании
-- Запоминает успешные паттерны
-- Избегает повторения ошибок
-- Обучается от пользователя
+### 🎓 Обучение через практику
+- **Apprentice Mode** - учится через повторение задач
+- **Teachability** - обучение от пользователя
+- **Demonstrations** - обучение через примеры успешных решений
 
-### 100% делегирование
+### 🚀 100% Делегирование
 - Босс НИКОГДА не пишет код сам
 - ВСЕ задачи делегируются через Codegen API
 - Память оптимизирует каждое делегирование
 
-### Командная работа
-- Общая память для всех агентов
-- Аналитик для анализа задач
-- Координатор для планирования
-- Босс для делегирования
+### 👥 Командная работа
+- Общая память для всех агентов команды
+- Синхронизация знаний между агентами
+- Коллективное обучение
+
+### 📈 Автоматическое улучшение
+- Учится на каждой ошибке
+- Запоминает успешные паттерны
+- Не повторяет прошлые ошибки
+
+## 🏗️ Архитектура
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Ultimate Boss Agent                       │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │           Task-Centric Memory Controller            │   │
+│  │  • Proven solutions                                 │   │
+│  │  • Failure patterns                                 │   │
+│  │  • Best practices                                   │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                          ↕                                   │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
+│  │    Mem0      │  │  ChromaDB    │  │ Teachability │    │
+│  │ Long-term    │  │  Vector      │  │   User       │    │
+│  │   Memory     │  │   Search     │  │  Teaching    │    │
+│  └──────────────┘  └──────────────┘  └──────────────┘    │
+└─────────────────────────────────────────────────────────────┘
+                          ↓
+                   Codegen API
+                          ↓
+              ┌───────────────────────┐
+              │  Codegen Agents       │
+              │  • Code writing       │
+              │  • PR creation        │
+              │  • Testing            │
+              │  • Deployment         │
+              └───────────────────────┘
+```
 
 ## 🚀 Быстрый старт
 
-### 1. Установка зависимостей
+### 1. Клонирование репозитория
 
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/evgenygurin/agent-boss.git
+cd agent-boss
 ```
 
 ### 2. Настройка окружения
 
 ```bash
+# Создайте .env файл
 cp .env.example .env
-# Отредактируйте .env и добавьте ваши ключи
+
+# Заполните необходимые ключи:
+# - CODEGEN_ORG_ID
+# - CODEGEN_API_TOKEN
+# - OPENAI_API_KEY
 ```
 
-### 3. Инициализация базы знаний
-
-```bash
-python init_boss_knowledge.py
-```
-
-### 4. Запуск через Docker Compose
+### 3. Запуск с Docker Compose
 
 ```bash
 docker-compose up -d
 ```
 
-### 5. Запуск локально
+### 4. Инициализация базы знаний
 
 ```bash
-python ultimate_boss_with_memory.py
+python init_boss_knowledge.py
 ```
 
-API будет доступен на `http://localhost:8000`
-
-## 📡 API Endpoints
+## 📚 API Endpoints
 
 ### POST /process
-Обрабатывает задачу с использованием памяти
+Обработка задачи с автоматическим выбором стратегии
 
-```json
-{
-  "task": "Fix bug in authentication module",
-  "mode": "auto"  // auto, boss, team, learn
-}
+```bash
+curl -X POST http://localhost:8000/process \
+  -H "Content-Type: application/json" \
+  -d '{
+    "task": "Fix bug in authentication module",
+    "mode": "auto"
+  }'
 ```
 
-**Режимы:**
+Режимы (`mode`):
 - `auto` - автоматический выбор стратегии
 - `boss` - простое делегирование через босса
-- `team` - сложная задача через команду
-- `learn` - обучение с возможностью повторных попыток
+- `team` - сложная задача через команду агентов
+- `learn` - обучение через практику с retry
 
 ### POST /teach
-Обучает босса новому знанию
+Обучение босса новому знанию
 
-```json
-{
-  "lesson": "Always run security audit before deployment"
-}
+```bash
+curl -X POST http://localhost:8000/teach \
+  -H "Content-Type: application/json" \
+  -d '{
+    "lesson": "Always run security scans before deployment"
+  }'
 ```
 
 ### POST /demonstrate
-Демонстрирует правильное решение
+Демонстрация успешного решения
 
-```json
-{
-  "task": "Deploy to production",
-  "solution": "1. Check tests\n2. Deploy\n3. Monitor"
-}
+```bash
+curl -X POST http://localhost:8000/demonstrate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "task": "Deploy to production",
+    "solution": "1. Check staging\\n2. Run smoke tests\\n3. Deploy\\n4. Monitor"
+  }'
 ```
 
-### GET /memory/search?query=deployment
-Ищет в памяти босса
+### GET /memory/search
+Поиск в памяти босса
+
+```bash
+curl "http://localhost:8000/memory/search?query=authentication"
+```
 
 ### GET /memory/stats
-Показывает статистику памяти
-
-## 🧪 Примеры использования
-
-### Простое делегирование
-
-```python
-import asyncio
-import httpx
-
-async def delegate_task():
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            "http://localhost:8000/process",
-            json={
-                "task": "Add unit tests for user authentication",
-                "mode": "boss"
-            }
-        )
-        print(response.json())
-
-asyncio.run(delegate_task())
-```
-
-### Обучение босса
-
-```python
-import asyncio
-import httpx
-
-async def teach():
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            "http://localhost:8000/teach",
-            json={
-                "lesson": "Always use TypeScript strict mode for new projects"
-            }
-        )
-        print(response.json())
-
-asyncio.run(teach())
-```
-
-### Сложная задача через команду
-
-```python
-import asyncio
-import httpx
-
-async def complex_task():
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            "http://localhost:8000/process",
-            json={
-                "task": "Refactor authentication system with multi-factor auth",
-                "mode": "team"
-            }
-        )
-        print(response.json())
-
-asyncio.run(complex_task())
-```
-
-### Поиск в памяти
-
-```python
-import asyncio
-import httpx
-
-async def search():
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            "http://localhost:8000/memory/search",
-            params={"query": "authentication"}
-        )
-        print(response.json())
-
-asyncio.run(search())
-```
-
-## 🏗️ Архитектура
-
-```
-┌─────────────────────────────────────────────────┐
-│           UltimateMemoryOrchestrator            │
-└────────────────┬────────────────────────────────┘
-                 │
-        ┌────────┴────────┐
-        │                 │
-        ▼                 ▼
-┌───────────────┐  ┌──────────────┐
-│ApprenticeBoss │  │MemoryEnabled │
-│               │  │    Team      │
-└───────┬───────┘  └──────┬───────┘
-        │                 │
-        ▼                 ▼
-┌────────────────────────────────┐
-│   UltimateBossWithMemory       │
-│   + BossMemorySystem           │
-└────────────────────────────────┘
-        │
-        ├── Task-Centric Memory
-        ├── Mem0 Memory
-        └── ChromaDB Vector Memory
-        │
-        ▼
-┌────────────────────────────────┐
-│    Codegen API Client          │
-│    (Delegation Layer)          │
-└────────────────────────────────┘
-```
-
-## 📊 Система памяти
-
-### Task-Centric Memory
-Хранит успешные решения задач:
-- Паттерны делегирования
-- Проверенные подходы
-- Инструкции для типов задач
-
-### Mem0 Memory
-Долгосрочная память:
-- История всех делегирований
-- Уроки от пользователя
-- Анализ ошибок
-
-### ChromaDB Vector Memory
-Векторный поиск:
-- Поиск похожих задач
-- Семантическая близость
-- Контекстуальные связи
-
-## 🔧 Конфигурация
-
-### Переменные окружения
-
-```env
-CODEGEN_ORG_ID=your_org_id
-CODEGEN_API_TOKEN=your_token
-OPENAI_API_KEY=your_key
-```
-
-### Docker Compose
-
-Сервисы:
-- `ultimate-boss-memory` - основное приложение
-- `chroma` - векторная база данных
-- `redis` - кэширование
-
-Volumes для персистентности:
-- `pagelogs/` - логи Task-Centric Memory
-- `boss_teachability_db/` - база обучаемости
-- `boss_mem0_storage/` - Mem0 хранилище
-- `boss_chroma_db/` - ChromaDB данные
-
-## 🎓 Обучение босса
-
-Босс учится тремя способами:
-
-### 1. Автоматическое обучение
-Автоматически учится на результатах каждого делегирования
-
-### 2. Явное обучение
-Через `/teach` endpoint
-
-### 3. Демонстрации
-Через `/demonstrate` endpoint с примерами решений
-
-## 🔍 Мониторинг
-
-### Проверка статуса памяти
+Статистика памяти
 
 ```bash
 curl http://localhost:8000/memory/stats
 ```
 
-### Просмотр активных делегирований
+## 💡 Примеры использования
+
+### Простая задача
+```python
+import httpx
+
+async with httpx.AsyncClient() as client:
+    response = await client.post(
+        "http://localhost:8000/process",
+        json={
+            "task": "Add input validation to login form",
+            "mode": "boss"
+        }
+    )
+    print(response.json())
+```
+
+### Сложная задача с командой
+```python
+async with httpx.AsyncClient() as client:
+    response = await client.post(
+        "http://localhost:8000/process",
+        json={
+            "task": "Implement complex payment system with Stripe integration",
+            "mode": "team"
+        }
+    )
+    print(response.json())
+```
+
+### Обучение с retry
+```python
+async with httpx.AsyncClient() as client:
+    response = await client.post(
+        "http://localhost:8000/process",
+        json={
+            "task": "Optimize database queries for performance",
+            "mode": "learn"
+        }
+    )
+    print(response.json())
+```
+
+## 🔧 Конфигурация
+
+### Memory Configuration
+
+Настройка в `ultimate_boss_with_memory.py`:
 
 ```python
-# В коде босса
-print(boss.active_delegations)
+# Task-Centric Memory
+memory_controller = MemoryController(
+    reset=False,  # Не сбрасывать память при перезапуске
+    client=model_client._impl,
+    logger=PageLogger(config={"level": "DEBUG", "path": "./pagelogs/boss"})
+)
+
+# Mem0 Long-term Memory
+mem0_memory = Mem0Memory(
+    is_cloud=False,  # Локальное хранилище
+    config={"path": "./boss_mem0_storage"},
+    user_id="boss",
+    limit=10  # Количество релевантных воспоминаний
+)
+
+# ChromaDB Vector Memory
+vector_memory = ChromaDBVectorMemory(
+    config=ChromaDBVectorMemoryConfig(
+        collection_name="boss_memories",
+        persist_directory="./boss_chroma_db",
+        embedding_function=SentenceTransformerEmbeddingFunctionConfig(
+            model_name="all-MiniLM-L6-v2"
+        )
+    )
+)
 ```
 
-### Логи
+## 📊 Мониторинг
 
-Логи сохраняются в:
-- `./logs/` - application logs
-- `./pagelogs/` - memory controller logs
+### Логи Task-Centric Memory
+```bash
+# Просмотр логов обучения
+cat pagelogs/boss/memory_log.json
+```
 
-## 🛠️ Разработка
+### Статистика делегирований
+```bash
+curl http://localhost:8000/memory/stats
+```
 
-### Запуск в режиме разработки
+### Docker logs
+```bash
+docker-compose logs -f ultimate-boss-memory
+```
+
+## 🧪 Тестирование
 
 ```bash
-# С автоперезагрузкой
-uvicorn ultimate_boss_with_memory:app --reload --host 0.0.0.0 --port 8000
+# Unit тесты
+pytest tests/
+
+# Интеграционные тесты
+pytest tests/integration/
+
+# Тесты памяти
+pytest tests/memory/
 ```
 
-### Тестирование
+## 🌐 Интеграции
 
-```bash
-# Инициализация знаний
-python init_boss_knowledge.py
+### Codegen API
+- Полная интеграция для делегирования
+- Мониторинг статуса агентов
+- Детальные логи выполнения
 
-# Тест простого делегирования
-curl -X POST http://localhost:8000/process \
-  -H "Content-Type: application/json" \
-  -d '{"task": "Add README", "mode": "boss"}'
+### Linear (опционально)
+- Создание issue для задач
+- Обновление статусов
+- Комментарии с прогрессом
 
-# Тест обучения
-curl -X POST http://localhost:8000/teach \
-  -H "Content-Type: application/json" \
-  -d '{"lesson": "Use conventional commits"}'
-```
-
-## 🔄 CI/CD Pipeline
-
-Этот проект использует **6 production-ready GitHub Actions workflows** с полной автоматизацией:
-
-### Workflows
-- **Development CI/CD** - Multi-version testing (Python 3.10, 3.11, 3.12), auto-deploy
-- **Staging Deploy** - Security scanning, integration tests, smoke tests
-- **Production Deploy** - GitHub Pages deployment, protected environment
-- **PR Checks** - Branch naming validation, flow validation, automated feedback
-- **Hotfix Pipeline** - Emergency response, auto-PR creation, fast-track deployment
-- **Manual Deployment** - On-demand deployment with full control
-
-### Features
-✅ Multi-version Python testing (3.10, 3.11, 3.12)  
-✅ Automated security scanning  
-✅ Branch flow validation  
-✅ Artifact management with retention policies  
-✅ Emergency hotfix automation  
-✅ Manual deployment override  
-✅ Reusable custom actions  
-
-### Quick Commands
-```bash
-# View workflow status
-gh workflow list
-
-# Check recent runs
-gh run list --limit 5
-
-# Manual deployment
-# GitHub → Actions → Manual Deployment → Run workflow
-```
-
-### Documentation
-- 📘 [WORKFLOW.md](./WORKFLOW.md) - Git workflow guide
-- 🔄 [WORKFLOWS_GUIDE.md](./WORKFLOWS_GUIDE.md) - Complete workflows documentation
-- 🔧 [SETUP.md](./SETUP.md) - Repository setup instructions
-- 🌳 [BRANCHING_STRATEGY.md](./BRANCHING_STRATEGY.md) - Branch strategy visualization
-- 🚀 [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) - Daily command reference
+### Slack (опционально)
+- Уведомления о завершении
+- Интерактивные апдейты
+- Отчеты о памяти
 
 ## 📈 Roadmap
 
-- [ ] Интеграция с Linear для автоматического создания задач
-- [ ] Slack уведомления о статусе делегирований
-- [ ] Dashboard для визуализации памяти
-- [ ] Метрики эффективности делегирований
-- [ ] A/B тестирование разных подходов
+- [x] Task-Centric Memory интеграция
+- [x] Apprentice Mode для обучения
+- [x] Командная работа с общей памятью
+- [ ] Web UI для визуализации памяти
+- [ ] GraphQL API
+- [ ] Экспорт/импорт базы знаний
 - [ ] Multi-tenant support
+- [ ] Distributed memory system
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing`)
-5. Open Pull Request
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## 📝 License
 
-MIT
+MIT License - see [LICENSE](LICENSE) file for details.
 
-## 🙏 Credits
+## 🙏 Acknowledgments
 
-Built with:
-- [Autogen](https://github.com/microsoft/autogen) - Multi-agent framework
-- [Codegen API](https://codegen.com) - Code generation platform
-- [Mem0](https://mem0.ai) - Long-term memory
-- [ChromaDB](https://www.trychroma.com/) - Vector database
-- [FastAPI](https://fastapi.tiangolo.com/) - Web framework
+- [Autogen](https://github.com/microsoft/autogen) - для Task-Centric Memory
+- [Codegen](https://codegen.com) - за потрясающий API
+- [Mem0](https://mem0.ai) - за долгосрочную память
+- [ChromaDB](https://www.trychroma.com/) - за векторный поиск
+
+## 📞 Support
+
+- GitHub Issues: [Report a bug](https://github.com/evgenygurin/agent-boss/issues)
+- Email: support@example.com
+- Telegram: @agent_boss_support
 
 ---
 
-Made with ❤️ and 🧠 by Ultimate Boss Team
+Made with ❤️ by [Evgeny Gurin](https://github.com/evgenygurin)
+
